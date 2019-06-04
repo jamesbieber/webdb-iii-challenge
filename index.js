@@ -26,6 +26,17 @@ server.get('/api/cohorts', async (req, res) => {
     }
 })
 
+
+server.get('/api/students', async (req, res) => {
+    try {
+        const students = await dbStudents.getStudents();
+        res.status(201).json(students)
+    }
+    catch(error) {
+        res.status(500).json({message: "Could not retrieve students."})
+    }
+})
+
 server.get('/api/cohorts/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -45,6 +56,54 @@ server.get('/api/cohorts/:id/students', async (req,res) => {
     }
     catch(error) {
         res.status(500).json({message: "Could not retrieve students"})
+    }
+})
+
+server.post('/api/cohorts', async (req, res) => {
+    try {
+        const cohort = req.body;
+
+        if(cohort) {
+            await dbCohorts.insert(cohort)
+            res.status(201).json(cohort)
+        } else {
+            res.status(500).json({message: "Could not post cohort"})
+        }       
+    }
+    catch(error) {
+        res.status(404).json({message: "Error posting to /api/cohorts."})
+    }
+})
+
+server.put('/api/cohorts/:id', async (req, res) => {
+    try {
+        const cohort = req.body;
+        const update = await dbCohorts.update(req.params.id, cohort);
+
+        if(update) {
+            res.status(201).json(update)
+        } else {
+            res.status(500).json({message: "Could not update cohort."})
+        }
+    }
+    catch(error) {
+        res.status(404).json({message: "Could not update cohort."})
+    }
+})
+
+server.delete('/api/cohorts/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const count = await dbCohorts.remove(id)
+
+        if(count) {
+            res.status(201).json({message: "Cohort has been deleted"});
+        } else {
+            res.status(400).json({message: "Cohort could not be found"})
+        }
+    }
+    catch(error) {
+        res.status(500).json({message: "Error deleting cohort."})
     }
 })
 
